@@ -75,9 +75,9 @@ const Index = () => {
 
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 fill-mode-both">
               <div className="mt-12 flex flex-col sm:flex-row gap-6 justify-center">
-                <Link to="/donate">
+                <Link to="/next-50">
                   <Button className="bg-accent text-accent-foreground hover:bg-accent/90 font-sans-body text-lg font-bold px-10 py-8 rounded-full shadow-2xl shadow-accent/20 transition-all duration-300 hover:scale-105">
-                    Donate Now
+                    🎓 Register for Next 50
                   </Button>
                 </Link>
                 <Link to="/get-involved#volunteer">
