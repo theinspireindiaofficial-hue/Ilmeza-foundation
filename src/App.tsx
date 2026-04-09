@@ -13,6 +13,7 @@ import Impact from "./pages/Impact";
 import GetInvolved from "./pages/GetInvolved";
 import Contact from "./pages/Contact";
 import Donate from "./pages/Donate";
+import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import Next50 from "./pages/Next50";
 import Next50Dashboard from "./pages/Next50Dashboard";
@@ -46,6 +47,7 @@ function AppLayout() {
         <Route path="/get-involved" element={<GetInvolved />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/donate" element={<Donate />} />
+        <Route path="/blog" element={<Blog />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!isStandalone && <Footer />}

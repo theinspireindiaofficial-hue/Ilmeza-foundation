@@ -24,6 +24,32 @@ export const ANNOUNCEMENTS = [
   "Next doubt-clearing session: Thursday 4:00 PM.",
 ];
 
+/* ─── Assessments/Tests ───────────────────────────── */
+export interface Assessment {
+  id: string;
+  title: string;
+  date: string;
+  duration: string;
+  testLink: string;
+}
+
+export const ASSESSMENTS: Assessment[] = [
+  {
+    id: "test-1",
+    title: "Maha Mock Test — JEE Pattern",
+    date: "Sunday, 10:00 AM",
+    duration: "3 Hours",
+    testLink: "https://forms.gle/your-test-link-here", // Replace with actual test link
+  },
+  {
+    id: "test-2",
+    title: "Weekly Practice — Organic Chem",
+    date: "Available Now",
+    duration: "45 Mins",
+    testLink: "https://forms.gle/your-test-link-here",
+  }
+];
+
 /* ─── Recorded Lectures ────────────────────────────── */
 export interface Lecture {
   id: string;

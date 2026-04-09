@@ -31,7 +31,8 @@ import {
   Flame,
   LayoutDashboard,
   GraduationCap,
-  User
+  User,
+  ClipboardEdit
 } from "lucide-react";
 import {
   DASHBOARD_PASSWORD,
@@ -39,8 +40,10 @@ import {
   RECORDED_LECTURES,
   STUDY_MATERIALS,
   ANNOUNCEMENTS,
+  ASSESSMENTS,
   type Lecture,
-  type StudyMaterial
+  type StudyMaterial,
+  type Assessment
 } from "@/data/dashboardData";
 import { siteConfig } from "@/data/siteConfig";
 
@@ -719,7 +722,47 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             </SpotlightCard>
           </motion.div>
 
-          {/* 7. Study Resources (Spans 12 cols, Bento list) */}
+          {/* 7. Assessments (Spans 12 cols) */}
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 }}} className="md:col-span-4 lg:col-span-12">
+            <SpotlightCard className="p-6 md:p-8 border border-amber-500/10">
+               <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                  <ClipboardEdit className="w-4 h-4 text-red-400" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-serif font-bold text-white mb-1">Active Tests & Assignments</h2>
+                  <p className="text-white/30 text-xs font-sans">Mandatory assessments for performance tracking.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {ASSESSMENTS.map((test) => (
+                  <a
+                    key={test.id}
+                    href={test.testLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative flex flex-col p-5 rounded-[20px] bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 hover:border-red-500/20 transition-all duration-300"
+                  >
+                    <div className="mb-2">
+                       <span className="inline-block px-2 py-1 rounded text-[10px] font-bold font-sans uppercase bg-red-500/20 text-red-400 mb-3 border border-red-500/20">
+                         {test.duration}
+                       </span>
+                    </div>
+                    <h4 className="text-[16px] font-sans font-medium text-white/90 group-hover:text-white leading-snug mb-2 flex-1">
+                      {test.title}
+                    </h4>
+                    <p className="text-red-400/60 text-xs font-sans">Due: {test.date}</p>
+                    {/* Hover redirect */}
+                    <div className="absolute right-5 bottom-5 w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 scale-50 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 shadow-lg">
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </SpotlightCard>
+          </motion.div>
+
+          {/* 8. Study Resources (Spans 12 cols, Bento list) */}
           <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 }}} className="md:col-span-4 lg:col-span-12">
             <SpotlightCard className="p-6 md:p-8">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-white/5 pb-6">
