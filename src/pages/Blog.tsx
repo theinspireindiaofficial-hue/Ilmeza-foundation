@@ -20,6 +20,7 @@ const INITIAL_POSTS: BlogPost[] = [
     title: "Lack Of Education",
     content: "Lack of education causes poverty by limiting employment opportunities, giving consistently low or no income, increasing health issues and severely restricting cognitive development. When a child is denied the basic right to learn, a generational cycle of economic hardship begins.\n\nOur mission is to break this cycle. Education provides the critical thinking skills, confidence, and basic knowledge required to participate meaningfully in the modern economy. By delivering high-quality education to underserved communities, we aren't just teaching a syllabus—we are directly dismantling the infrastructure of poverty itself.",
     author: "Vikas Chaudhary",
+    authorLink: "linkedin.com/in/vikas-chaudhary",
     date: "April 9, 2026",
     image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80", // High quality charity/education image
     readTime: "2 min read"
@@ -29,6 +30,7 @@ const INITIAL_POSTS: BlogPost[] = [
     title: "Empowering Needs in the Modern Era",
     content: "The essence of true leadership is not in leading others, but in empowering them to lead themselves. At Ilmeza Foundation, our vision revolves around identifying raw potential and giving it the runway it deserves.\n\nEducation is merely the tool, the real product is the unwavering confidence we aim to instil in every child. We are creating an environment where curiosity is not just welcomed, but actively incubated.\n\nOur modern era demands more than just rote learning. It requires critical thinking, empathy, and an insatiable hunger for progress. Through our various initiatives, we are tearing down the socio-economic barriers that have traditionally gatekept high-tier education, ensuring every brilliant mind gets their shot at changing the world.",
     author: "Vikas Chaudhary",
+    authorLink: "linkedin.com/in/vikas-chaudhary",
     date: "April 9, 2026",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     readTime: "3 min read"
@@ -203,7 +205,7 @@ export default function Blog() {
               Community <span className="text-accent italic">Stories</span>
             </h1>
             <p className="text-foreground/60 font-sans text-lg max-w-xl">
-              Insights, updates, and community experiences. Your entries are saved directly to your local instance.
+              Insights, updates, and community experiences. All entries are synced instantly across the <span className="text-accent font-bold">Global Foundation Network</span>.
             </p>
           </motion.div>
 
@@ -252,13 +254,16 @@ export default function Blog() {
                 
                 <div className="p-8 flex flex-col flex-1">
                   <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-sans text-foreground/50 mb-5">
-                    {post.authorLink ? (
+                    {post.authorLink && post.authorLink.trim() !== "" ? (
                       <a 
-                        href={post.authorLink.startsWith('http') ? post.authorLink : `https://${post.authorLink}`} 
+                        href={post.authorLink.trim().startsWith('http') ? post.authorLink.trim() : `https://${post.authorLink.trim()}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-md bg-foreground/5 hover:bg-accent hover:text-background transition-colors z-10 relative"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        className="flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-md bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-background transition-all z-20 relative pointer-events-auto shadow-sm"
+                        title="View LinkedIn Profile"
                       >
                         <User className="w-3.5 h-3.5" /> {post.author}
                       </a>
