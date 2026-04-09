@@ -16,6 +16,15 @@ export interface BlogPost {
 
 const INITIAL_POSTS: BlogPost[] = [
   {
+    id: "post-custom-1",
+    title: "Lack Of Education",
+    content: "Lack of education causes poverty by limiting employment opportunities, giving consistently low or no income, increasing health issues and severely restricting cognitive development. When a child is denied the basic right to learn, a generational cycle of economic hardship begins.\n\nOur mission is to break this cycle. Education provides the critical thinking skills, confidence, and basic knowledge required to participate meaningfully in the modern economy. By delivering high-quality education to underserved communities, we aren't just teaching a syllabus—we are directly dismantling the infrastructure of poverty itself.",
+    author: "Vikas Chaudhary",
+    date: "April 9, 2026",
+    image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80", // High quality charity/education image
+    readTime: "2 min read"
+  },
+  {
     id: "post-1",
     title: "Empowering Needs in the Modern Era",
     content: "The essence of true leadership is not in leading others, but in empowering them to lead themselves. At Ilmeza Foundation, our vision revolves around identifying raw potential and giving it the runway it deserves.\n\nEducation is merely the tool, the real product is the unwavering confidence we aim to instil in every child. We are creating an environment where curiosity is not just welcomed, but actively incubated.\n\nOur modern era demands more than just rote learning. It requires critical thinking, empathy, and an insatiable hunger for progress. Through our various initiatives, we are tearing down the socio-economic barriers that have traditionally gatekept high-tier education, ensuring every brilliant mind gets their shot at changing the world.",
@@ -35,32 +44,16 @@ const INITIAL_POSTS: BlogPost[] = [
   }
 ];
 
-function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.warn(error);
-      return initialValue;
-    }
-  });
-
-  const setValue = (value: T | ((val: T) => T)) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.warn(error);
-    }
-  };
-
-  return [storedValue, setValue] as const;
-}
-
+// ============================================================================
+// ⚠️ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+// ============================================================================
+export const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWqTRyYcturGRYWO6Htd3UI412LMW1kT8Dz82LaqoM-XvzZwi3_UHqJj16Bga-9JEf/exec"; 
+// Example: "https://script.google.com/macros/s/AKfycby.../exec"
+// ============================================================================
 export default function Blog() {
-  const [posts, setPosts] = useLocalStorage<BlogPost[]>("ilmeza_blog_posts_v2", INITIAL_POSTS);
+  const [posts, setPosts] = useState<BlogPost[]>(INITIAL_POSTS);
+  const [isLoadingFeed, setIsLoadingFeed] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   
   // UI States
   const [isComposing, setIsComposing] = useState(false);
@@ -77,6 +70,39 @@ export default function Blog() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    
+    // Fetch Global Posts from Google Sheets Backend
+    const fetchGlobalPosts = async () => {
+      if (!GOOGLE_SHEET_URL.trim()) return; // If no URL provided, stick to INITIAL_POSTS
+      
+      try {
+        setIsLoadingFeed(true);
+        const res = await fetch(GOOGLE_SHEET_URL);
+        const data = await res.json();
+        
+        if (data && data.length > 0) {
+          // Format raw spreadsheet data back into BlogPost structure
+          // Reversing so newest is at the top
+          const formattedPosts: BlogPost[] = data.reverse().map((row: any) => ({
+            id: row.id,
+            title: row.title,
+            content: row.content,
+            author: row.author,
+            authorLink: row.authorLink,
+            date: row.date,
+            image: undefined, // Google Sheets limit: Images not stored in cells
+            readTime: calculateReadTime(row.content || ""),
+          }));
+          setPosts(formattedPosts);
+        }
+      } catch (err) {
+        console.error("Failed to fetch global posts:", err);
+      } finally {
+        setIsLoadingFeed(false);
+      }
+    };
+
+    fetchGlobalPosts();
   }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,9 +123,13 @@ export default function Blog() {
     return `${minutes} min read`;
   };
 
-  const handlePost = (e: React.FormEvent) => {
+  const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
+
+    if (!GOOGLE_SHEET_URL.trim()) {
+      alert("⚠️ Local test mode: Please insert your Google Apps Script URL at the top of Blog.tsx to enable global posting.");
+    }
 
     const newPost: BlogPost = {
       id: `post-${Date.now()}`,
@@ -112,15 +142,40 @@ export default function Blog() {
       readTime: calculateReadTime(newContent),
     };
 
-    setPosts(prev => [newPost, ...prev]);
-    setIsComposing(false);
-    
-    // Reset
-    setNewTitle("");
-    setNewAuthor("");
-    setNewAuthorLink("");
-    setNewContent("");
-    setNewImage(null);
+    setIsPublishing(true);
+
+    try {
+      if (GOOGLE_SHEET_URL.trim()) {
+        // Send to Global Backend
+        await fetch(GOOGLE_SHEET_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            id: newPost.id,
+            title: newPost.title,
+            content: newPost.content,
+            author: newPost.author,
+            authorLink: newPost.authorLink || "",
+            date: newPost.date
+          }),
+        });
+      }
+      
+      // Update local feed instantly
+      setPosts(prev => [newPost, ...prev]);
+      setIsComposing(false);
+      
+      // Reset form
+      setNewTitle("");
+      setNewAuthor("");
+      setNewAuthorLink("");
+      setNewContent("");
+      setNewImage(null);
+    } catch (err) {
+      console.error("Failed to hit global backend:", err);
+      alert("Could not post to the global network. Check connection.");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -165,6 +220,14 @@ export default function Blog() {
         </div>
 
         {/* Blog Masonry Grid */}
+        <div className="mb-6 relative">
+           {isLoadingFeed && (
+             <div className="absolute top-0 right-0 px-4 py-2 rounded-xl bg-accent text-white font-bold text-xs animate-pulse tracking-wide shadow-lg">
+                Syncing with Global Network...
+             </div>
+           )}
+        </div>
+        
         <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
           <AnimatePresence>
             {posts.map((post, i) => (
@@ -416,14 +479,15 @@ export default function Blog() {
 
               <div className="px-6 py-5 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 bg-background">
                 <p className="text-xs text-foreground/40 font-sans italic max-w-[250px] text-center sm:text-left">
-                  Saved via localStorage. Images are converted to base64.
+                  {GOOGLE_SHEET_URL ? "Syncing directly to Global Spreadsheets." : "Running in strict 'Local Only' test mode (no URL configured)."}
                 </p>
                 <button
                   type="submit"
                   form="composer-form"
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-foreground text-background font-bold tracking-wide transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                  disabled={isPublishing}
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-foreground text-background font-bold tracking-wide transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2"
                 >
-                  Publish Story <ArrowRight className="w-4 h-4" />
+                  {isPublishing ? "Syncing to Global..." : "Publish Story"} <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </motion.div>
