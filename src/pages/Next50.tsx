@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ import {
   Calculator,
   ChevronDown,
   Zap,
+  Shield,
 } from "lucide-react";
 
 /* ─── Data ─────────────────────────────────────────── */
@@ -282,6 +284,23 @@ const Next50 = () => {
                 Learn More
               </Button>
             </a>
+          </motion.div>
+
+          {/* Student Login CTA */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="mt-6 flex justify-center"
+          >
+            <Link
+              to="/next-50/dashboard"
+              className="inline-flex items-center gap-2 text-primary-foreground/40 hover:text-accent text-sm font-sans-body transition-colors duration-300 group"
+            >
+              <Shield className="w-4 h-4" />
+              Already Selected? Access Student Dashboard
+              <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+            </Link>
           </motion.div>
 
           {/* Scroll cue */}
