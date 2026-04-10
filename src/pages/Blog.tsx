@@ -105,7 +105,7 @@ const INITIAL_POSTS: BlogPost[] = [
 // ============================================================================
 // ⚠️ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
 // ============================================================================
-export const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzWqTRyYcturGRYWO6Htd3UI412LMW1kT8Dz82LaqoM-XvzZwi3_UHqJj16Bga-9JEf/exec"; 
+export const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwEKa8lCZn37WBeL0pega4xnvu7636XRXStIY8SX-BxVeqoRaVhB2LDbZ2njyTC6dze/exec"; 
 // Example: "https://script.google.com/macros/s/AKfycby.../exec"
 // ============================================================================
 export default function Blog() {
@@ -123,6 +123,7 @@ export default function Blog() {
   const [newAuthorLink, setNewAuthorLink] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newImage, setNewImage] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -262,20 +263,28 @@ export default function Blog() {
         });
       }
       
-      // Update local feed instantly
-      setPosts(prev => [newPost, ...prev]);
-      setIsComposing(false);
+      // EXPERT: Added an artificial delay to ensure Google Sheets processes the entry
+      // before the local state or a potential refresh occurs.
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Reset form
-      setNewTitle("");
-      setNewAuthor("");
-      setNewAuthorLink("");
-      setNewContent("");
-      setNewImage(null);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setPosts(prev => [newPost, ...prev]);
+        setIsComposing(false);
+        setIsPublishing(false);
+        setShowSuccess(false);
+        
+        // Reset form
+        setNewTitle("");
+        setNewAuthor("");
+        setNewAuthorLink("");
+        setNewContent("");
+        setNewImage(null);
+      }, 500);
     } catch (err) {
-      console.error("Failed to hit global backend:", err);
-      alert("Could not post to the global network. Check connection.");
-    } finally {
+      console.error("Critical Post Error:", err);
+      alert("⚠️ Connection Error: Your story was saved locally, but may not have reached the Global Network. Check your Google Script configuration.");
+      setPosts(prev => [newPost, ...prev]);
       setIsPublishing(false);
     }
   };
@@ -379,7 +388,7 @@ export default function Blog() {
                         </span>
                       </div>
                       
-                      <h2 className="text-2xl font-serif font-bold text-foreground mb-4 group-hover:text-accent transition-colors leading-[1.3]">
+                      <h2 className="text-2xl font-serif font-bold text-foreground mb-4 group-hover:text-accent transition-colors leading-[1.3] ">
                         {post.title}
                       </h2>
                       
@@ -503,7 +512,20 @@ export default function Blog() {
               </div>
               
               <div className="flex-1 overflow-y-auto">
-                <form id="composer-form" onSubmit={handlePost} className="p-6 md:p-8 space-y-8">
+                <form id="composer-form" onSubmit={handlePost} className="p-8 space-y-8">
+                  {showSuccess ? (
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute inset-0 z-50 rounded-3xl bg-background/95 backdrop-blur-md flex flex-col items-center justify-center text-center p-8"
+                    >
+                      <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6">
+                        <Sparkles className="w-10 h-10 text-emerald-500" />
+                      </div>
+                      <h3 className="text-3xl font-serif font-bold text-white mb-2">Story Published!</h3>
+                      <p className="text-white/50 font-sans">Your contribution is now synced with the Global Foundation Network.</p>
+                    </motion.div>
+                  ) : null}
                   
                   {/* Image Uploader */}
                   <div className="space-y-3">
