@@ -1,3 +1,5 @@
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { PenTool, Calendar, User, ArrowRight, X, Sparkles, Image as ImageIcon, Trash2, ArrowLeft, Tag } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
 import RichTextEditor from "@/components/RichTextEditor";
@@ -45,14 +47,14 @@ function RoyalBackground() {
       <motion.div
         animate={{ x: [0, 100, -50, 0], y: [0, -100, 50, 0], scale: [1, 1.2, 0.9, 1] }}
         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] max-w-[800px] bg-accent/[0.03] rounded-full blur-[120px]"
+        className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] max-w-[800px] bg-accent/5 rounded-full blur-[120px]"
       />
       <motion.div
         animate={{ x: [0, -150, 50, 0], y: [0, 50, -150, 0], scale: [1, 1.3, 0.8, 1] }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-1/4 right-1/4 w-[60vw] h-[60vw] max-w-[600px] bg-indigo-500/[0.03] rounded-full blur-[100px]"
+        className="absolute bottom-1/4 right-1/4 w-[60vw] h-[60vw] max-w-[600px] bg-blue-500/5 rounded-full blur-[100px]"
       />
-      <div className="absolute inset-0 bg-noise opacity-[0.05] mix-blend-overlay" />
+      <div className="absolute inset-0 bg-noise opacity-[0.08] mix-blend-overlay" />
     </div>
   );
 }
@@ -137,29 +139,52 @@ export default function Blog() {
         const data = await res.json();
         
         if (data && data.length > 0) {
+          // EXPERT: Normalize keys to lowercase to handle any spreadsheet header capitalization
+          const normalizeKeys = (obj: any) => {
+            const normalized: any = {};
+            Object.keys(obj).forEach(key => {
+              normalized[key.toLowerCase().trim()] = obj[key];
+            });
+            return normalized;
+          };
+
           // Format raw spreadsheet data back into BlogPost structure
-          // Reversing so newest is at the top
-          const formattedPosts: BlogPost[] = data.reverse().map((row: any) => ({
-            id: row.id,
-            title: row.title,
-            content: row.content,
-            author: row.author,
-            authorLink: row.authorLink,
-            date: row.date,
-            image: undefined, // Google Sheets limit: Images not stored in cells
-            readTime: calculateReadTime(row.content || ""),
-          }));
-          setPosts(formattedPosts);
+          // VALIDATION: Filter out any empty rows from the Google Sheet
+          const globalPosts: BlogPost[] = data
+            .map(normalizeKeys)
+            .filter((row: any) => row.id && row.title && String(row.id).trim() !== "" && String(row.title).trim() !== "")
+            .reverse()
+            .map((row: any) => ({
+              id: String(row.id),
+              title: row.title,
+              content: row.content || "",
+              author: row.author || "Anonymous",
+              authorLink: row.authorlink || row.authorLink, // Covers both possible mappings
+              date: row.date || "Unknown Date",
+              image: undefined,
+              readTime: calculateReadTime(row.content || ""),
+            }));
+          
+          // EXPERT MERGE: Ensure no duplicates if an INITIAL_POST is already in the global sheet
+          const globalIds = new Set(globalPosts.map(p => p.id));
+          const filteredInitial = INITIAL_POSTS.filter(p => !globalIds.has(p.id));
+
+          setPosts([...globalPosts, ...filteredInitial]);
         }
       } catch (err) {
         console.error("Failed to fetch global posts:", err);
+        // On error, we still have INITIAL_POSTS as fallback
       } finally {
         setIsLoadingFeed(false);
       }
     };
 
     fetchGlobalPosts();
-  }, []);
+
+    // EXPERT: Auto-refresh data every 60 seconds to keep the global feed alive
+    const interval = setInterval(fetchGlobalPosts, 60000);
+    return () => clearInterval(interval);
+  }, [GOOGLE_SHEET_URL]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -218,9 +243,14 @@ export default function Blog() {
 
     try {
       if (GOOGLE_SHEET_URL.trim()) {
-        // Send to Global Backend
+        // EXPERT CONNECT: Use no-cors and text/plain to bypass Google security redirects
+        // This ensures the data reaches the sheet even if the browser blocks the response.
         await fetch(GOOGLE_SHEET_URL, {
           method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain",
+          },
           body: JSON.stringify({
             id: newPost.id,
             title: newPost.title,
@@ -264,14 +294,20 @@ export default function Blog() {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-2xl"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-bold uppercase tracking-[0.2em] mb-6 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Public Journal</span>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,179,8,0.2)]">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                <span>Public Journal</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Foundation Network Live
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold text-foreground mb-4 leading-[1.1] tracking-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold text-white mb-4 leading-[1.1] tracking-tight">
               Community <span className="text-accent italic">Stories</span>
             </h1>
-            <p className="text-foreground/60 font-sans text-lg max-w-xl">
+            <p className="text-white/60 font-sans text-lg max-w-xl leading-relaxed">
               Insights, updates, and community experiences. All entries are synced instantly across the <span className="text-accent font-bold">Global Foundation Network</span>.
             </p>
           </motion.div>
@@ -281,7 +317,7 @@ export default function Blog() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
             onClick={() => setIsComposing(true)}
-            className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-foreground text-background font-bold font-sans tracking-wide transition-all shadow-[0_10px_40px_-10px_rgba(255,255,255,0.2)] hover:shadow-[0_10px_50px_-5px_rgba(255,255,255,0.3)] hover:scale-[1.02] active:scale-[0.98]"
+            className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-foreground text-background font-bold font-sans tracking-wide transition-all shadow-[0_10px_40px_-10px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(234,179,8,0.4)] hover:bg-accent hover:text-background hover:scale-[1.02] active:scale-[0.98]"
           >
             <PenTool className="w-5 h-5" />
             Write a Story
