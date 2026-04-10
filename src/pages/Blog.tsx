@@ -76,7 +76,7 @@ const INITIAL_POSTS: BlogPost[] = [
     title: "Lack Of Education",
     content: "Lack of education causes poverty by limiting employment opportunities, giving consistently low or no income, increasing health issues and severely restricting cognitive development. When a child is denied the basic right to learn, a generational cycle of economic hardship begins.\n\nOur mission is to break this cycle. Education provides the critical thinking skills, confidence, and basic knowledge required to participate meaningfully in the modern economy. By delivering high-quality education to underserved communities, we aren't just teaching a syllabus—we are directly dismantling the infrastructure of poverty itself.",
     author: "Vikas Chaudhary",
-    authorLink: "linkedin.com/in/vikas-chaudhary",
+    authorLink: "https://www.linkedin.com/in/vikas-chaudhary28/",
     date: "April 9, 2026",
     image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80", // High quality charity/education image
     readTime: "2 min read"
@@ -86,7 +86,7 @@ const INITIAL_POSTS: BlogPost[] = [
     title: "Empowering Needs in the Modern Era",
     content: "The essence of true leadership is not in leading others, but in empowering them to lead themselves. At Ilmeza Foundation, our vision revolves around identifying raw potential and giving it the runway it deserves.\n\nEducation is merely the tool, the real product is the unwavering confidence we aim to instil in every child. We are creating an environment where curiosity is not just welcomed, but actively incubated.\n\nOur modern era demands more than just rote learning. It requires critical thinking, empathy, and an insatiable hunger for progress. Through our various initiatives, we are tearing down the socio-economic barriers that have traditionally gatekept high-tier education, ensuring every brilliant mind gets their shot at changing the world.",
     author: "Vikas Chaudhary",
-    authorLink: "linkedin.com/in/vikas-chaudhary",
+    authorLink: "https://www.linkedin.com/in/vikas-chaudhary28/",
     date: "April 9, 2026",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     readTime: "3 min read"
@@ -157,6 +157,11 @@ export default function Blog() {
             return normalized;
           };
 
+          // EXPERT: Visual Recovery Map for stories posted before the image bridge was complete
+          const IMAGE_RECOVERY: Record<string, string> = {
+            "digital freedom and its responsibility": "/cyberbullying.png"
+          };
+
           // Format raw spreadsheet data back into BlogPost structure
           const globalPosts: BlogPost[] = data
             .map(normalizeKeys)
@@ -178,7 +183,7 @@ export default function Blog() {
                 author: String(row.author || row.Author || row[3] || "Anonymous"),
                 authorLink: row.authorlink || row.authorLink || row[4],
                 date: String(row.date || row.Date || row[5] || "Unknown Date"),
-                image: row.image || row.Image || row[6],
+                image: row.image || row.Image || row[6] || IMAGE_RECOVERY[String(row.title || "").toLowerCase().trim()],
                 readTime: calculateReadTime(String(row.content || row[2] || "")),
               };
             });
