@@ -72,7 +72,7 @@ export interface BlogPost {
 
 const INITIAL_POSTS: BlogPost[] = [
   {
-    id: "post-custom-1",
+    id: "foundation-default-1",
     title: "Lack Of Education",
     content: "Lack of education causes poverty by limiting employment opportunities, giving consistently low or no income, increasing health issues and severely restricting cognitive development. When a child is denied the basic right to learn, a generational cycle of economic hardship begins.\n\nOur mission is to break this cycle. Education provides the critical thinking skills, confidence, and basic knowledge required to participate meaningfully in the modern economy. By delivering high-quality education to underserved communities, we aren't just teaching a syllabus—we are directly dismantling the infrastructure of poverty itself.",
     author: "Vikas Chaudhary",
@@ -82,7 +82,7 @@ const INITIAL_POSTS: BlogPost[] = [
     readTime: "2 min read"
   },
   {
-    id: "post-1",
+    id: "foundation-default-2",
     title: "Empowering Needs in the Modern Era",
     content: "The essence of true leadership is not in leading others, but in empowering them to lead themselves. At Ilmeza Foundation, our vision revolves around identifying raw potential and giving it the runway it deserves.\n\nEducation is merely the tool, the real product is the unwavering confidence we aim to instil in every child. We are creating an environment where curiosity is not just welcomed, but actively incubated.\n\nOur modern era demands more than just rote learning. It requires critical thinking, empathy, and an insatiable hunger for progress. Through our various initiatives, we are tearing down the socio-economic barriers that have traditionally gatekept high-tier education, ensuring every brilliant mind gets their shot at changing the world.",
     author: "Vikas Chaudhary",
@@ -92,7 +92,7 @@ const INITIAL_POSTS: BlogPost[] = [
     readTime: "3 min read"
   },
   {
-    id: "post-2",
+    id: "foundation-default-3",
     title: "Why The 'Next 50' Matters",
     content: "We often talk about mass education, but there is incredible power in concentrated, hyper-focused mentorship. The Next 50 program was built on this exact philosophy.\n\nBy selecting 50 highly driven students and giving them exclusive, distraction-free access to top-tier materials and direct faculty engagement, we aren't just teaching them—we are forging the next generation of absolute trailblazers in the scientific community.\n\nIt is about depth over breadth. Creating 50 exceptional leaders will create a ripple effect that ultimately impacts millions. This is why the Next 50 matters.",
     author: "Foundation Team",
@@ -105,7 +105,7 @@ const INITIAL_POSTS: BlogPost[] = [
 // ============================================================================
 // ⚠️ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
 // ============================================================================
-export const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby5v-Tdd6QJqM_EDYbNWFdrr-AV-05uERaAITIBxkp06g0Fj1SQQb8kLrqWA-qRKns8/exec"; 
+export const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbycOMSmquZUuh4sq6s1i_hzFBvxtqLrnGm6k2VPPWZouf_fBrZUIGekkzuMsUO3ZK6f/exec";
 // Example: "https://script.google.com/macros/s/AKfycby.../exec"
 // ============================================================================
 export default function Blog() {
@@ -124,6 +124,7 @@ export default function Blog() {
   const [newContent, setNewContent] = useState("");
   const [newImage, setNewImage] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [syncStats, setSyncStats] = useState({ global: 0, status: 'idle' });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -131,15 +132,22 @@ export default function Blog() {
     window.scrollTo(0, 0);
     
     // Fetch Global Posts from Google Sheets Backend
-    const fetchGlobalPosts = async () => {
-      if (!GOOGLE_SHEET_URL.trim()) return; // If no URL provided, stick to INITIAL_POSTS
+    
+    // Fetch Global Posts from Google Sheets Backend
+    const fetchGlobalPosts = async (retryCount = 0) => {
+      if (!GOOGLE_SHEET_URL.trim()) return;
       
       try {
         setIsLoadingFeed(true);
-        const res = await fetch(GOOGLE_SHEET_URL);
+        setSyncStats(prev => ({ ...prev, status: 'syncing' }));
+
+        const syncUrl = `${GOOGLE_SHEET_URL}${GOOGLE_SHEET_URL.includes('?') ? '&' : '?'}t=${Date.now()}`;
+        const res = await fetch(syncUrl, { cache: 'no-store' });
         const data = await res.json();
         
-        if (data && data.length > 0) {
+        console.log("💎 SYNC DATA RECEIVED:", data);
+
+        if (data && Array.isArray(data)) {
           // EXPERT: Normalize keys to lowercase to handle any spreadsheet header capitalization
           const normalizeKeys = (obj: any) => {
             const normalized: any = {};
@@ -170,25 +178,34 @@ export default function Blog() {
                 author: String(row.author || row.Author || row[3] || "Anonymous"),
                 authorLink: row.authorlink || row.authorLink || row[4],
                 date: String(row.date || row.Date || row[5] || "Unknown Date"),
-                image: undefined,
+                image: row.image || row.Image || row[6],
                 readTime: calculateReadTime(String(row.content || row[2] || "")),
               };
-            })
-            .filter(p => p.title !== "Untitled Story"); // Final filter for quality
+            });
           
           if (globalPosts.length === 0 && data.length > 0) {
-            console.warn("💎 ILMEZA SYNC DIAGNOSTIC: Data found but mapping failed. Please check your Spreadsheet Header Row!");
+            console.warn("💎 ILMEZA SYNC DIAGNOSTIC: Data found but mapping failed. Check headers.");
           }
-          
-          // EXPERT MERGE: Ensure no duplicates if an INITIAL_POST is already in the global sheet
-          const globalIds = new Set(globalPosts.map(p => p.id));
-          const filteredInitial = INITIAL_POSTS.filter(p => !globalIds.has(p.id));
 
-          setPosts([...globalPosts, ...filteredInitial]);
+          // EXPERT MERGE: Ironclad Merger
+          // We prioritize global stories. If a global story has the same Title as an initial story, 
+          const globalTitles = new Set(globalPosts.map(p => p.title.toLowerCase().trim()));
+          const filteredInitial = INITIAL_POSTS.filter(p => !globalTitles.has(p.title.toLowerCase().trim()));
+
+          const finalPosts = [...globalPosts, ...filteredInitial];
+          setPosts(finalPosts);
+          setSyncStats({ global: globalPosts.length, status: 'success' });
+        } else {
+          setSyncStats({ global: 0, status: 'success' });
         }
       } catch (err) {
         console.error("Failed to fetch global posts:", err);
-        // On error, we still have INITIAL_POSTS as fallback
+        if (retryCount < 2) {
+          console.log("Retrying sync...");
+          setTimeout(() => fetchGlobalPosts(retryCount + 1), 2000);
+        } else {
+          setSyncStats(prev => ({ ...prev, status: 'error' }));
+        }
       } finally {
         setIsLoadingFeed(false);
       }
@@ -282,7 +299,8 @@ export default function Blog() {
             content: newPost.content,
             author: newPost.author,
             authorLink: newPost.authorLink || "",
-            date: newPost.date
+            date: newPost.date,
+            image: newPost.image || ""
           }),
         });
       }
@@ -332,10 +350,22 @@ export default function Blog() {
                 <Sparkles className="w-3.5 h-3.5 animate-pulse" />
                 <span>Public Journal</span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Foundation Network Live
-              </div>
+              {isLoadingFeed || syncStats.status === 'syncing' ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-spin" />
+                  Connectivity Pulse: Syncing...
+                </div>
+              ) : syncStats.status === 'error' ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-widest">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                  Foundation Network: Sync Error
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Network Synced: {syncStats.global} Global Stories
+                </div>
+              )}
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif font-bold text-white mb-4 leading-[1.1] tracking-tight">
               Community <span className="text-accent italic">Stories</span>
