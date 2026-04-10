@@ -1,8 +1,61 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { PenTool, Calendar, User, ArrowRight, X, Sparkles, Image as ImageIcon, Trash2, ArrowLeft } from "lucide-react";
+import { PenTool, Calendar, User, ArrowRight, X, Sparkles, Image as ImageIcon, Trash2, ArrowLeft, Tag } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
 import RichTextEditor from "@/components/RichTextEditor";
+
+/* ─── Spotlight Card (Spatial UI) ───────────────────── */
+function SpotlightCard({ children, className = "" }: { children: React.ReactNode, className?: string }) {
+  const divRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [opacity, setOpacity] = useState(0);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!divRef.current) return;
+    const rect = divRef.current.getBoundingClientRect();
+    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  return (
+    <div
+      ref={divRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setOpacity(1)}
+      onMouseLeave={() => setOpacity(0)}
+      className={`relative rounded-[32px] border border-border bg-card overflow-hidden transition-all duration-500 group ${className}`}
+      style={{
+        "--x": `${position.x}px`,
+        "--y": `${position.y}px`,
+      } as React.CSSProperties}
+    >
+      <div 
+        className="pointer-events-none absolute -inset-px transition duration-300 opacity-0 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(600px circle at var(--x) var(--y), rgba(234, 179, 8, 0.15), transparent 40%)`,
+        }}
+      />
+      <div className="relative z-10 h-full">{children}</div>
+    </div>
+  );
+}
+
+/* ─── Premium Deep Royal Background ───────────────────── */
+function RoyalBackground() {
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <div className="absolute inset-0 bg-[#030712]" />
+      <motion.div
+        animate={{ x: [0, 100, -50, 0], y: [0, -100, 50, 0], scale: [1, 1.2, 0.9, 1] }}
+        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        className="absolute top-1/4 left-1/4 w-[60vw] h-[60vw] max-w-[800px] bg-accent/[0.03] rounded-full blur-[120px]"
+      />
+      <motion.div
+        animate={{ x: [0, -150, 50, 0], y: [0, 50, -150, 0], scale: [1, 1.3, 0.8, 1] }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        className="absolute bottom-1/4 right-1/4 w-[60vw] h-[60vw] max-w-[600px] bg-indigo-500/[0.03] rounded-full blur-[100px]"
+      />
+      <div className="absolute inset-0 bg-noise opacity-[0.05] mix-blend-overlay" />
+    </div>
+  );
+}
 
 export interface BlogPost {
   id: string;
@@ -133,6 +186,15 @@ export default function Blog() {
     return `${minutes} min read`;
   };
 
+  const getCategory = (post: BlogPost) => {
+    const text = (post.title + " " + post.content).toLowerCase();
+    if (text.includes("education") || text.includes("learn")) return "Education";
+    if (text.includes("success") || text.includes("empower")) return "Impact";
+    if (text.includes("next 50") || text.includes("program")) return "Programs";
+    if (text.includes("community") || text.includes("journal")) return "Community";
+    return "Foundation";
+  };
+
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
@@ -190,13 +252,10 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen bg-background pt-32 pb-20 relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[150px] pointer-events-none" />
-      <div className="fixed bottom-0 left-0 w-[800px] h-[800px] bg-indigo-500/5 rounded-full blur-[150px] pointer-events-none" />
-      <div className="fixed inset-0 bg-noise opacity-[0.03] pointer-events-none mix-blend-overlay" />
+      <RoyalBackground />
 
       {/* Main Feed */}
-      <div className={`container mx-auto px-4 relative z-10 transition-all duration-700 ${readingPost ? 'opacity-0 scale-95 pointer-events-none h-0 overflow-hidden' : 'opacity-100 scale-100'}`}>
+      <div className={`container mx-auto px-4 relative z-10 transition-all duration-700 ${readingPost ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
         
         {/* Header section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
@@ -230,79 +289,80 @@ export default function Blog() {
         </div>
 
         {/* Blog Masonry Grid */}
-        <div className="mb-6 relative">
-           {isLoadingFeed && (
-             <div className="absolute top-0 right-0 px-4 py-2 rounded-xl bg-accent text-white font-bold text-xs animate-pulse tracking-wide shadow-lg">
-                Syncing with Global Network...
-             </div>
-           )}
-        </div>
-        
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
-          <AnimatePresence>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 items-start">
+          <AnimatePresence mode="popLayout">
             {posts.map((post, i) => (
-              <motion.article 
+              <motion.div
                 key={post.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                onClick={() => setReadingPost(post)}
-                className="group break-inside-avoid flex flex-col rounded-[28px] bg-card border border-border shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] hover:border-accent/40 transition-all duration-500 overflow-hidden cursor-pointer"
+                layout
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className={`${posts.length % 3 === 1 && i === posts.length - 1 ? 'lg:col-start-2' : ''} ${posts.length % 3 === 2 && i === posts.length - 2 ? 'lg:col-start-1 lg:col-span-1' : ''}`}
               >
-                {post.image && (
-                  <div className="w-full h-56 relative overflow-hidden border-b border-border">
-                    <img 
-                      src={post.image} 
-                      alt="Cover" 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
-                  </div>
-                )}
-                
-                <div className="p-8 flex flex-col flex-1">
-                  <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-sans text-foreground/50 mb-5">
-                    {post.authorLink && post.authorLink.trim() !== "" ? (
-                      <a 
-                        href={post.authorLink.trim().startsWith('http') ? post.authorLink.trim() : `https://${post.authorLink.trim()}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                        className="flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-md bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-background transition-all z-20 relative pointer-events-auto shadow-sm"
-                        title="View LinkedIn Profile"
-                      >
-                        <User className="w-3.5 h-3.5" /> {post.author}
-                      </a>
-                    ) : (
-                      <span className="flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-md bg-foreground/5">
-                        <User className="w-3.5 h-3.5" /> {post.author}
-                      </span>
+                <SpotlightCard
+                  className="h-full flex flex-col cursor-pointer hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] transition-shadow"
+                >
+                  <div className="h-full flex flex-col" onClick={() => setReadingPost(post)}>
+                    {post.image && (
+                      <div className="w-full h-52 relative overflow-hidden">
+                        <img 
+                          src={post.image} 
+                          alt="Cover" 
+                          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#030712] via-transparent to-transparent opacity-80" />
+                        <div className="absolute top-4 left-4">
+                          <div className="px-3 py-1 rounded-full bg-accent/90 text-background text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm">
+                            {getCategory(post)}
+                          </div>
+                        </div>
+                      </div>
                     )}
-                    <span className="flex items-center gap-1.5">
-                      {post.date}
-                    </span>
+                    
+                    <div className="p-8 flex flex-col flex-1">
+                      <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-sans text-foreground/50 mb-6">
+                        {post.authorLink && post.authorLink.trim() !== "" ? (
+                          <a 
+                            href={post.authorLink.trim().startsWith('http') ? post.authorLink.trim() : `https://${post.authorLink.trim()}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-md bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-background transition-all z-20 relative pointer-events-auto"
+                          >
+                            <User className="w-3.5 h-3.5" /> {post.author}
+                          </a>
+                        ) : (
+                          <span className="flex items-center gap-1.5 font-medium px-2.5 py-1 rounded-md bg-foreground/5">
+                            <User className="w-3.5 h-3.5" /> {post.author}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1.5 opacity-60">
+                          <Calendar className="w-3.5 h-3.5" /> {post.date}
+                        </span>
+                      </div>
+                      
+                      <h2 className="text-2xl font-serif font-bold text-foreground mb-4 group-hover:text-accent transition-colors leading-[1.3]">
+                        {post.title}
+                      </h2>
+                      
+                      <p className="text-foreground/50 font-sans leading-relaxed line-clamp-3 mb-8 text-sm">
+                        {stripHtml(post.content)}
+                      </p>
+                      
+                      <div className="pt-6 border-t border-border/40 flex items-center justify-between mt-auto">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground/30">
+                          {post.readTime}
+                        </span>
+                        <span className="flex items-center gap-2 text-sm font-bold text-accent group-hover:translate-x-1 transition-transform">
+                          Read Story <ArrowRight className="w-4 h-4" />
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <h2 className="text-2xl font-serif font-bold text-foreground mb-4 group-hover:text-accent transition-colors leading-snug">
-                    {post.title}
-                  </h2>
-                  
-                  <p className="text-foreground/60 font-sans leading-relaxed line-clamp-3 flex-1 mb-8">
-                    {stripHtml(post.content)}
-                  </p>
-                  
-                  <div className="pt-6 border-t border-border flex items-center justify-between mt-auto">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-foreground/40">
-                      {post.readTime}
-                    </span>
-                    <span className="flex items-center gap-2 text-sm font-bold text-accent group-hover:gap-3 transition-all duration-300">
-                      Read Story <ArrowRight className="w-4 h-4" />
-                    </span>
-                  </div>
-                </div>
-              </motion.article>
+                </SpotlightCard>
+              </motion.div>
             ))}
           </AnimatePresence>
         </div>
@@ -370,7 +430,7 @@ export default function Blog() {
                   </div>
                 </div>
 
-                <div className="prose prose-invert prose-lg prose-amber max-w-none font-sans text-foreground/80 leading-loose prose-p:mb-8 prose-headings:font-serif prose-headings:text-foreground prose-headings:mb-6 prose-strong:text-accent">
+                <div className="prose prose-invert prose-lg prose-amber max-w-none font-sans text-foreground/80 leading-loose prose-p:mb-8 prose-headings:font-serif prose-headings:text-foreground prose-headings:mb-6 prose-strong:text-accent prose-ul:list-disc prose-ol:list-decimal prose-li:my-2">
                   <div dangerouslySetInnerHTML={{ __html: readingPost.content }} />
                 </div>
               </div>

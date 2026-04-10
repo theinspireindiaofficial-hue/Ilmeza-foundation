@@ -85,12 +85,28 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         </div>
       </div>
 
-      {/* Editor Area */}
+      {/* Editor Area with CSS Overrides for Lists */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .royal-editor-content ul { 
+          list-style-type: disc !important; 
+          padding-left: 1.5rem !important; 
+          margin-bottom: 1rem !important;
+        }
+        .royal-editor-content ol { 
+          list-style-type: decimal !important; 
+          padding-left: 1.5rem !important; 
+          margin-bottom: 1rem !important;
+        }
+        .royal-editor-content li { 
+          display: list-item !important;
+          margin-bottom: 0.25rem !important;
+        }
+      `}} />
       <div
         ref={editorRef}
         contentEditable
         onInput={handleInput}
-        className="w-full min-h-[300px] max-h-[500px] p-6 outline-none prose prose-invert prose-amber max-w-none text-foreground overflow-y-auto"
+        className="w-full min-h-[300px] max-h-[500px] p-6 outline-none prose prose-invert prose-amber max-w-none text-foreground overflow-y-auto royal-editor-content"
         style={{
           minHeight: "300px",
           fontFamily: "var(--font-sans)",
@@ -99,7 +115,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
       
       {/* Placeholder Text logic (Native contentEditable doesn't have a placeholder attribute) */}
       {(!value || value === "<br>") && (
-        <div className="absolute top-[85px] left-6 pointer-events-none text-foreground/20 font-sans italic italic">
+        <div className="absolute top-[85px] left-6 pointer-events-none text-foreground/20 font-sans italic">
           {placeholder || "Start writing your royal story..."}
         </div>
       )}
