@@ -48,7 +48,7 @@ const Index = () => {
         {heroSlides.map((slide, index) => (
           <div
             key={slide.image}
-            className={`absolute inset-0 bg-cover bg-center transition-all duration-[4000ms] ease-in-out ${index === currentImageIndex ? "opacity-40 scale-110 translate-y-2" : "opacity-0 scale-100"
+            className={`absolute inset-0 bg-cover bg-center [transition-duration:4000ms] ease-in-out ${index === currentImageIndex ? "opacity-40 scale-110 translate-y-2" : "opacity-0 scale-100"
               }`}
             style={{ backgroundImage: `url('${slide.image}')` }}
           />

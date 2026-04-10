@@ -105,7 +105,7 @@ const INITIAL_POSTS: BlogPost[] = [
 // ============================================================================
 // ⚠️ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
 // ============================================================================
-export const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwEKa8lCZn37WBeL0pega4xnvu7636XRXStIY8SX-BxVeqoRaVhB2LDbZ2njyTC6dze/exec"; 
+export const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby5v-Tdd6QJqM_EDYbNWFdrr-AV-05uERaAITIBxkp06g0Fj1SQQb8kLrqWA-qRKns8/exec"; 
 // Example: "https://script.google.com/macros/s/AKfycby.../exec"
 // ============================================================================
 export default function Blog() {
@@ -150,21 +150,35 @@ export default function Blog() {
           };
 
           // Format raw spreadsheet data back into BlogPost structure
-          // VALIDATION: Filter out any empty rows from the Google Sheet
           const globalPosts: BlogPost[] = data
             .map(normalizeKeys)
-            .filter((row: any) => row.id && row.title && String(row.id).trim() !== "" && String(row.title).trim() !== "")
+            .filter((row: any) => {
+              // EXPERT: More resilient check. Even if 'id' and 'title' are missing from headers, 
+              // we check the raw values to see if they look like a blog post.
+              const hasData = Object.values(row).some(v => v && String(v).trim() !== "");
+              return hasData;
+            })
             .reverse()
-            .map((row: any) => ({
-              id: String(row.id),
-              title: row.title,
-              content: row.content || "",
-              author: row.author || "Anonymous",
-              authorLink: row.authorlink || row.authorLink, // Covers both possible mappings
-              date: row.date || "Unknown Date",
-              image: undefined,
-              readTime: calculateReadTime(row.content || ""),
-            }));
+            .map((row: any, index: number) => {
+              // EXPERT: Fallback mapping if headers are missing or renamed in the spreadsheet
+              const rawRow = data[data.length - 1 - index]; // Map back to raw data if needed
+              
+              return {
+                id: String(row.id || row.Id || row[0] || `auto-${index}`),
+                title: String(row.title || row.Title || row[1] || "Untitled Story"),
+                content: String(row.content || row.Content || row[2] || ""),
+                author: String(row.author || row.Author || row[3] || "Anonymous"),
+                authorLink: row.authorlink || row.authorLink || row[4],
+                date: String(row.date || row.Date || row[5] || "Unknown Date"),
+                image: undefined,
+                readTime: calculateReadTime(String(row.content || row[2] || "")),
+              };
+            })
+            .filter(p => p.title !== "Untitled Story"); // Final filter for quality
+          
+          if (globalPosts.length === 0 && data.length > 0) {
+            console.warn("💎 ILMEZA SYNC DIAGNOSTIC: Data found but mapping failed. Please check your Spreadsheet Header Row!");
+          }
           
           // EXPERT MERGE: Ensure no duplicates if an INITIAL_POST is already in the global sheet
           const globalIds = new Set(globalPosts.map(p => p.id));
@@ -181,6 +195,16 @@ export default function Blog() {
     };
 
     fetchGlobalPosts();
+
+    // EXPERT DIAGNOSTIC: Expose sync status for console debugging
+    (window as any).ilmezaSyncCheck = () => {
+      console.log("💎 ILMEZA SYNC DIAGNOSTIC REPORT");
+      console.log("--------------------------------");
+      console.log("Current Feed Post Count:", posts.length);
+      console.log("Google Sheet URL Configure:", GOOGLE_SHEET_URL ? "YES" : "NO");
+      console.log("Raw Post Data:", posts);
+      return "Diagnostic complete. Check the logs above.";
+    };
 
     // EXPERT: Auto-refresh data every 60 seconds to keep the global feed alive
     const interval = setInterval(fetchGlobalPosts, 60000);
