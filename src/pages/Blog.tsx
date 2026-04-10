@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PenTool, Calendar, User, ArrowRight, X, Sparkles, Image as ImageIcon, Trash2, ArrowLeft } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
+import RichTextEditor from "@/components/RichTextEditor";
 
 export interface BlogPost {
   id: string;
@@ -118,9 +119,16 @@ export default function Blog() {
     }
   };
 
+  const stripHtml = (html: string) => {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
   const calculateReadTime = (text: string) => {
     const wordsPerMinute = 200;
-    const words = text.trim().split(/\s+/).length;
+    const plainText = stripHtml(text);
+    const words = plainText.trim().split(/\s+/).length;
     const minutes = Math.ceil(words / wordsPerMinute);
     return `${minutes} min read`;
   };
@@ -282,7 +290,7 @@ export default function Blog() {
                   </h2>
                   
                   <p className="text-foreground/60 font-sans leading-relaxed line-clamp-3 flex-1 mb-8">
-                    {post.content}
+                    {stripHtml(post.content)}
                   </p>
                   
                   <div className="pt-6 border-t border-border flex items-center justify-between mt-auto">
@@ -362,10 +370,8 @@ export default function Blog() {
                   </div>
                 </div>
 
-                <div className="prose prose-invert prose-lg max-w-none font-sans text-foreground/80 leading-loose prose-p:mb-8">
-                  {readingPost.content.split('\n\n').map((paragraph, i) => (
-                    <p key={i}>{paragraph}</p>
-                  ))}
+                <div className="prose prose-invert prose-lg prose-amber max-w-none font-sans text-foreground/80 leading-loose prose-p:mb-8 prose-headings:font-serif prose-headings:text-foreground prose-headings:mb-6 prose-strong:text-accent">
+                  <div dangerouslySetInnerHTML={{ __html: readingPost.content }} />
                 </div>
               </div>
             </div>
@@ -470,13 +476,14 @@ export default function Blog() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <textarea
-                      required
+                  <div className="space-y-3 relative">
+                    <label className="text-xs font-bold uppercase tracking-widest text-foreground/50 ml-1">
+                      Story Content
+                    </label>
+                    <RichTextEditor
                       value={newContent}
-                      onChange={(e) => setNewContent(e.target.value)}
-                      placeholder="Start writing your story..."
-                      className="w-full h-64 px-5 py-4 bg-foreground/[0.02] border border-border rounded-xl text-foreground font-sans resize-none focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all leading-relaxed"
+                      onChange={setNewContent}
+                      placeholder="Share your amazing story with the world..."
                     />
                   </div>
                 </form>
