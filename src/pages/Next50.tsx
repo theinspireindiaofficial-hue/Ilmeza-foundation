@@ -707,7 +707,7 @@ const Next50 = () => {
             </span>
 
             <h2 className="text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-primary-foreground mb-8 leading-[1.1]">
-              Only <span className="text-gradient-gold italic">50</span> Students<br className="hidden md:block" /> Will Be Selected.
+              Only <span className="text-gradient-gold italic">100</span> Students<br className="hidden md:block" /> Will Be Selected.
             </h2>
 
             <p className="text-xl text-primary-foreground/60 mb-14 font-light max-w-2xl mx-auto leading-relaxed">
