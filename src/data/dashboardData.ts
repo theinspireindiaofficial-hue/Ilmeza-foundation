@@ -1,5 +1,5 @@
 /**
- * Ilmeza Next 50 — Student Dashboard Configuration
+ * Ilmeza Next 100 — Student Dashboard Configuration
  * ═══════════════════════════════════════════════════
  * Edit this file to update dashboard content.
  * No code knowledge required — just change values.
@@ -22,32 +22,6 @@ export const ANNOUNCEMENTS = [
   "Weekly test on Sunday at 10:00 AM. Prepare chapters 1–5.",
   "New study materials for Organic Chemistry uploaded.",
   "Next doubt-clearing session: Thursday 4:00 PM.",
-];
-
-/* ─── Assessments/Tests ───────────────────────────── */
-export interface Assessment {
-  id: string;
-  title: string;
-  date: string;
-  duration: string;
-  testLink: string;
-}
-
-export const ASSESSMENTS: Assessment[] = [
-  {
-    id: "test-1",
-    title: "Maha Mock Test — JEE Pattern",
-    date: "Sunday, 10:00 AM",
-    duration: "3 Hours",
-    testLink: "https://forms.gle/your-test-link-here", // Replace with actual test link
-  },
-  {
-    id: "test-2",
-    title: "Weekly Practice — Organic Chem",
-    date: "Available Now",
-    duration: "45 Mins",
-    testLink: "https://forms.gle/your-test-link-here",
-  }
 ];
 
 /* ─── Recorded Lectures ────────────────────────────── */
@@ -75,7 +49,7 @@ export const RECORDED_LECTURES: SubjectLectures[] = [
       {
         id: "phy-1",
         title: "Newton's Laws of Motion — Part 1",
-        youtubeId: "dQw4w9WgXcQ", // Replace with actual unlisted video ID
+        youtubeId: "X7pbAZ3X4HM", // Replace with actual unlisted video ID
         date: "Apr 7, 2026",
         duration: "1h 20m",
       },
@@ -88,6 +62,13 @@ export const RECORDED_LECTURES: SubjectLectures[] = [
       },
       {
         id: "phy-3",
+        title: "Work, Energy & Power — Basics",
+        youtubeId: "dQw4w9WgXcQ",
+        date: "Apr 9, 2026",
+        duration: "1h 30m",
+      },
+      {
+        id: "phy-4",
         title: "Work, Energy & Power — Basics",
         youtubeId: "dQw4w9WgXcQ",
         date: "Apr 9, 2026",
@@ -219,4 +200,30 @@ export const STUDY_MATERIALS: StudyMaterial[] = [
     subject: "Biology",
     driveLink: "https://drive.google.com/file/d/example/view",
   },
+];
+
+/* ─── Assessments ──────────────────────────────────── */
+export interface Assessment {
+  id: string;
+  title: string;
+  duration: string;
+  date: string;
+  testLink: string;
+}
+
+export const ASSESSMENTS: Assessment[] = [
+  {
+    id: "test-1",
+    title: "Physics: Mechanics Weekly Test",
+    duration: "60 mins",
+    date: "April 15, 2026",
+    testLink: "https://forms.google.com/example-test",
+  },
+  {
+    id: "test-2",
+    title: "Chemistry: Basic Concepts Quiz",
+    duration: "45 mins",
+    date: "April 18, 2026",
+    testLink: "https://forms.google.com/example-test",
+  }
 ];

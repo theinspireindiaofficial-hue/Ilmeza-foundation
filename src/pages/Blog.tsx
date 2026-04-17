@@ -93,8 +93,8 @@ const INITIAL_POSTS: BlogPost[] = [
   },
   {
     id: "foundation-default-3",
-    title: "Why The 'Next 50' Matters",
-    content: "We often talk about mass education, but there is incredible power in concentrated, hyper-focused mentorship. The Next 50 program was built on this exact philosophy.\n\nBy selecting 50 highly driven students and giving them exclusive, distraction-free access to top-tier materials and direct faculty engagement, we aren't just teaching them—we are forging the next generation of absolute trailblazers in the scientific community.\n\nIt is about depth over breadth. Creating 50 exceptional leaders will create a ripple effect that ultimately impacts millions. This is why the Next 50 matters.",
+    title: "Why The 'Next 100' Matters",
+    content: "We often talk about mass education, but there is incredible power in concentrated, hyper-focused mentorship. The Next 100 program was built on this exact philosophy.\n\nBy selecting 100 highly driven students and giving them exclusive, distraction-free access to top-tier materials and direct faculty engagement, we aren't just teaching them—we are forging the next generation of absolute trailblazers in the scientific community.\n\nIt is about depth over breadth. Creating 100 exceptional leaders will create a ripple effect that ultimately impacts millions. This is why the Next 100 matters.",
     author: "Foundation Team",
     date: "April 8, 2026",
     image: "https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
@@ -262,7 +262,7 @@ export default function Blog() {
     const text = (post.title + " " + post.content).toLowerCase();
     if (text.includes("education") || text.includes("learn")) return "Education";
     if (text.includes("success") || text.includes("empower")) return "Impact";
-    if (text.includes("next 50") || text.includes("program")) return "Programs";
+    if (text.includes("next 100") || text.includes("program")) return "Programs";
     if (text.includes("community") || text.includes("journal")) return "Community";
     return "Foundation";
   };

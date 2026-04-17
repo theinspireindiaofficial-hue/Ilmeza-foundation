@@ -166,7 +166,7 @@ const Next50 = () => {
     setIsSubmitting(true);
     const formData = new FormData(e.target as HTMLFormElement);
     formData.append("access_key", "9f28a4c2-5366-4a54-88b4-82c74128d40e");
-    formData.append("subject", "New Ilmeza Next 50 Application");
+    formData.append("subject", "New Ilmeza Next 100 Application");
     try {
       const res = await fetch("https://api.web3forms.com/submit", { method: "POST", body: formData });
       const data = await res.json();
@@ -238,7 +238,7 @@ const Next50 = () => {
           >
             <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[7rem] font-serif font-bold text-primary-foreground leading-[1.05] tracking-tight">
               Ilmeza{" "}
-              <span className="text-gradient-gold italic">Next 50</span>
+              <span className="text-gradient-gold italic">Next 100</span>
             </h1>
           </motion.div>
 
@@ -294,7 +294,7 @@ const Next50 = () => {
             className="mt-6 flex justify-center"
           >
             <Link
-              to="/next-50/dashboard"
+              to="/next-100/dashboard"
               className="inline-flex items-center gap-2 text-primary-foreground/40 hover:text-accent text-sm font-sans-body transition-colors duration-300 group"
             >
               <Shield className="w-4 h-4" />
@@ -343,7 +343,7 @@ const Next50 = () => {
         <div className="container mx-auto px-4 lg:px-8 max-w-6xl relative z-10">
           <SectionLabel
             eyebrow="About the Program"
-            heading={<>What is Ilmeza <span className="italic text-accent">Next 50</span>?</>}
+            heading={<>What is Ilmeza <span className="italic text-accent">Next 100</span>?</>}
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -361,7 +361,7 @@ const Next50 = () => {
               },
               {
                 title: "Why It Exists",
-                body: "Because talent is universal, but opportunity is not. Next 50 exists to bridge that gap — ensuring no dream dies because of financial constraints.",
+                body: "Because talent is universal, but opportunity is not. Next 100 exists to bridge that gap — ensuring no dream dies because of financial constraints.",
                 icon: Trophy,
                 accent: "from-emerald-400 to-green-500",
               },
@@ -580,7 +580,7 @@ const Next50 = () => {
         <div className="container mx-auto px-4 lg:px-8 max-w-3xl relative z-10">
           <SectionLabel
             eyebrow="Start Your Journey"
-            heading={<>Apply for <span className="italic text-accent">Next 50</span></>}
+            heading={<>Apply for <span className="italic text-accent">Next 100</span></>}
           />
           <motion.p
             initial={{ opacity: 0 }}

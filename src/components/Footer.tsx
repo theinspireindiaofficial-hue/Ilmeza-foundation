@@ -47,7 +47,7 @@ const Footer = () => {
                 { to: "/", label: "Home Base" },
                 { to: "/about", label: "Heritage & Vision" },
                 { to: "/programs", label: "Our Programs" },
-                { to: "/next-50", label: "Next 50 Initiative" },
+                { to: "/next-100", label: "Next 100 Initiative" },
                 { to: "/impact", label: "Philanthropic Impact" },
                 { to: "/blog", label: "Public Journal" },
               ].map((link) => (

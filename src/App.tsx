@@ -27,7 +27,7 @@ function ScrollToTop() {
 }
 
 /* Routes that render as standalone (no global Navbar/Footer) */
-const STANDALONE_ROUTES = ["/next-50/dashboard"];
+const STANDALONE_ROUTES = ["/next-100/dashboard"];
 
 function AppLayout() {
   const { pathname } = useLocation();
@@ -41,8 +41,8 @@ function AppLayout() {
         <Route path="/" element={<Index />} />
         <Route path="/about" element={<About />} />
         <Route path="/programs" element={<Programs />} />
-        <Route path="/next-50" element={<Next50 />} />
-        <Route path="/next-50/dashboard" element={<Next50Dashboard />} />
+        <Route path="/next-100" element={<Next50 />} />
+        <Route path="/next-100/dashboard" element={<Next50Dashboard />} />
         <Route path="/impact" element={<Impact />} />
         <Route path="/get-involved" element={<GetInvolved />} />
         <Route path="/contact" element={<Contact />} />

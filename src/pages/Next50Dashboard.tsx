@@ -243,7 +243,7 @@ function AccessGate({ onSuccess }: { onSuccess: () => void }) {
             transition={{ delay: 0.3 }}
             className="text-4xl md:text-5xl font-serif font-bold text-white mb-3"
           >
-            Ilmeza <span className="bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent italic drop-shadow-sm">Next 50</span>
+            Ilmeza <span className="bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent italic drop-shadow-sm">Next 100</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -437,7 +437,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             </div>
             <div className="flex flex-col">
               <span className="font-serif font-bold text-white text-[15px] leading-tight">
-                Ilmeza <span className="text-gradient-gold italic">Next 50</span>
+                Ilmeza <span className="text-gradient-gold italic">Next 100</span>
               </span>
               <span className="text-white/40 text-[10px] font-sans uppercase tracking-widest leading-tight">Student Portal</span>
             </div>
@@ -855,7 +855,7 @@ export default function Next50Dashboard() {
   const handleLogout = () => {
     sessionStorage.removeItem("n50_auth");
     setAuthenticated(false);
-    navigate("/next-50/dashboard");
+    navigate("/next-100/dashboard");
   };
 
   return (
