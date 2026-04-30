@@ -211,5 +211,71 @@ export const siteConfig = {
                 "Resource mobilization for affected zones",
             ],
         }
-    ]
+    ],
+    healthCare: {
+        title: "Ilmeza Women Health Initiative",
+        subtitle: "Empowering Women Through Health Awareness & Early Detection",
+        mission: "At Ilmeza Foundation, we believe that a healthy woman builds a healthy family, and a healthy family builds a strong nation. The Ilmeza Women Health Initiative is our dedicated effort to improve women’s health outcomes through awareness, early diagnosis, and preventive care.",
+        importance: {
+            title: "Why This Initiative Matters",
+            description: "In India, breast cancer and cervical cancer are among the most common causes of death among women. What makes the situation more concerning is the lack of awareness, late diagnosis, and limited access to healthcare in many communities.",
+            highlight: "The good news is—early detection can save lives. Through awareness and timely screening, these diseases can be prevented or treated effectively."
+        },
+        focusAreas: [
+            {
+                id: "breast-cancer",
+                title: "Breast Cancer Awareness",
+                image: "/images/healthcare/breast_cancer_ribbon.png",
+                points: [
+                    "Educating women about early symptoms and warning signs",
+                    "Promoting Breast Self-Examination (BSE) practices",
+                    "Encouraging regular clinical screenings",
+                    "Breaking myths and stigma around cancer"
+                ],
+                extraImage: "/images/healthcare/bse_guide.png"
+            },
+            {
+                id: "cervical-cancer",
+                title: "Cervical Cancer Awareness",
+                image: "/images/healthcare/cervical_camp.png",
+                points: [
+                    "Raising awareness about HPV (Human Papillomavirus)",
+                    "Promoting Pap smear tests for early detection",
+                    "Encouraging vaccination and preventive care",
+                    "Educating women about reproductive health"
+                ]
+            }
+        ],
+        approach: {
+            title: "Our Approach",
+            description: "We work at the grassroots level to ensure maximum reach and real impact:",
+            items: [
+                "Community awareness campaigns in rural and urban areas",
+                "Free or low-cost health screening camps",
+                "Collaboration with doctors, hospitals, and health professionals",
+                "Educational workshops and interactive sessions",
+                "Distribution of informational materials in local languages"
+            ]
+        },
+        impact: {
+            title: "Our Impact Vision",
+            items: [
+                "Increase awareness among women about cancer prevention",
+                "Reduce late-stage diagnosis through early screening",
+                "Improve access to basic healthcare services",
+                "Build a community where women feel confident discussing their health"
+            ]
+        },
+        getInvolved: {
+            title: "Get Involved",
+            description: "You can be a part of this life-saving initiative:",
+            items: [
+                { label: "Volunteer", text: "Volunteer with us in awareness drives" },
+                { label: "Partner", text: "Partner as a healthcare provider or organization" },
+                { label: "Support", text: "Support by contributing to our programs" },
+                { label: "Spread Awareness", text: "Spread Awareness in your community" }
+            ],
+            footer: "Together, we can save lives. Together, we can build a healthier future."
+        }
+    }
 };

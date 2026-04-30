@@ -17,6 +17,7 @@ import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import Next50 from "./pages/Next50";
 import Next50Dashboard from "./pages/Next50Dashboard";
+import HealthCare from "./pages/HealthCare";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ function AppLayout() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/donate" element={<Donate />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/health-care" element={<HealthCare />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!isStandalone && <Footer />}
