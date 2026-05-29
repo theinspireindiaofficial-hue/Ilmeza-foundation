@@ -7,6 +7,8 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { BookOpen, Users, Heart, Stethoscope, Home, AlertTriangle, ArrowRight, CheckCircle } from "lucide-react";
 import InteractiveImage from "@/components/InteractiveImage";
 import { siteConfig } from "@/data/siteConfig";
+import TreeVolutionShowcase from "@/components/TreeVolutionShowcase";
+
 
 const focusAreas = [
   { icon: BookOpen, title: "Education & Learning Support", desc: "Providing access to quality education and holistic learning for underprivileged students." },
@@ -132,6 +134,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Tree-volution Flagship Showcase */}
+      <TreeVolutionShowcase />
 
       {/* Focus Areas */}
       <section className="py-24 md:py-32 bg-cream/50 relative overflow-hidden">

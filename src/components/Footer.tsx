@@ -47,6 +47,7 @@ const Footer = () => {
                 { to: "/", label: "Home Base" },
                 { to: "/about", label: "Heritage & Vision" },
                 { to: "/programs", label: "Our Programs" },
+                { to: "/tree-volution", label: "Tree-volution Initiative" },
                 { to: "/next-100", label: "Next 100 Initiative" },
                 { to: "/impact", label: "Philanthropic Impact" },
                 { to: "/blog", label: "Public Journal" },
