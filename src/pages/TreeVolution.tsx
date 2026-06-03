@@ -1,6 +1,6 @@
-import { useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { 
   Sprout, 
@@ -14,7 +14,14 @@ import {
   Globe, 
   CheckCircle, 
   Activity, 
-  Heart 
+  Heart,
+  Calendar,
+  Filter,
+  X,
+  Maximize2,
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 // Stat metrics
@@ -85,6 +92,94 @@ const trustMarkers = [
   }
 ];
 
+// Gallery images configuration
+interface GalleryImage {
+  id: string;
+  url: string;
+  category: "planting" | "volunteers" | "community" | "mapping";
+  title: string;
+  desc: string;
+  location: string;
+  coords: string;
+  date: string;
+  spanClass: string;
+  objectPosition?: string;
+}
+
+const galleryImages: GalleryImage[] = [
+  {
+    id: "img1",
+    url: "/images/Tree-volution/1092e30e-9aaf-489f-8660-01e88e6b1376.JPG",
+    category: "planting",
+    title: "Active Ground Sowing",
+    desc: "Community guardians and volunteers collaborating on-ground to dig soil beds and plant native saplings.",
+    location: "Ecosystem Zone Alpha",
+    coords: "28.5671° N, 77.2910° E",
+    date: "June 3, 2026",
+    spanClass: "md:col-span-2 md:row-span-2",
+    objectPosition: "object-[center_35%]"
+  },
+  {
+    id: "img2",
+    url: "/images/Tree-volution/fc9ca8ff-6090-4cab-b523-2f2f2bff0023.JPG",
+    category: "planting",
+    title: "On-Ground Plantation",
+    desc: "Planting indigenous shade saplings in designated public grounds to restore green cover.",
+    location: "Sowing Block A",
+    coords: "28.5684° N, 77.2925° E",
+    date: "June 3, 2026",
+    spanClass: "md:col-span-1",
+    objectPosition: "object-top"
+  },
+  {
+    id: "img3",
+    url: "/images/Tree-volution/072da783-f60a-4330-b317-47a158b4679f.JPG",
+    category: "community",
+    title: "Community Guardianship Model",
+    desc: "Empowering local guardians to maintain, prune, and water saplings for long-term survival.",
+    location: "Village Support Center",
+    coords: "28.5655° N, 77.2890° E",
+    date: "June 2, 2026",
+    spanClass: "md:col-span-1"
+  },
+  {
+    id: "img4",
+    url: "/images/Tree-volution/341cbe32-fa37-4619-858f-3f74129e16fd.JPG",
+    category: "volunteers",
+    title: "Deserving Youth Mobilization",
+    desc: "Briefing and deployment of local student leaders and climate volunteers to plantation sectors.",
+    location: "Educational Hub B",
+    coords: "28.5699° N, 77.2941° E",
+    date: "June 3, 2026",
+    spanClass: "md:col-span-2",
+    objectPosition: "object-[center_30%]"
+  },
+  {
+    id: "img5",
+    url: "/images/Tree-volution/376c9024-d1aa-4a3d-afac-2b7216a6b9a4.JPG",
+    category: "mapping",
+    title: "GPS-Tagged Audit Mapping",
+    desc: "Recording exact location coordinates and sapling details to upload to the transparency dashboard.",
+    location: "Satellite Mapping Zone C",
+    coords: "28.5630° N, 77.2845° E",
+    date: "June 3, 2026",
+    spanClass: "md:col-span-1",
+    objectPosition: "object-[center_40%]"
+  },
+  {
+    id: "img6",
+    url: "/images/Tree-volution/e1470d8f-a2b3-4c9a-8145-ab850c02edc7.JPG",
+    category: "planting",
+    title: "Sapling Care & Nourishment",
+    desc: "Caring for young saplings with customized organic composting and dynamic moisture analysis.",
+    location: "Ecosystem Bed Sector 4",
+    coords: "28.5662° N, 77.2970° E",
+    date: "June 1, 2026",
+    spanClass: "md:col-span-1",
+    objectPosition: "object-top"
+  }
+];
+
 export default function TreeVolution() {
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -92,6 +187,66 @@ export default function TreeVolution() {
   // Parallax transform equations
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  // Gallery states
+  const [galleryFilter, setGalleryFilter] = useState<string>("all");
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+
+  // Lock body scroll and register keyboard navigation when lightbox is open
+  useEffect(() => {
+    if (!selectedImage) return;
+
+    document.body.style.overflow = "hidden";
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedImage(null);
+      } else if (e.key === "ArrowLeft") {
+        const filteredImages = galleryImages.filter(
+          img => galleryFilter === "all" || img.category === galleryFilter
+        );
+        const currentIndex = filteredImages.findIndex(img => img.id === selectedImage.id);
+        const prevIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
+        setSelectedImage(filteredImages[prevIndex]);
+      } else if (e.key === "ArrowRight") {
+        const filteredImages = galleryImages.filter(
+          img => galleryFilter === "all" || img.category === galleryFilter
+        );
+        const currentIndex = filteredImages.findIndex(img => img.id === selectedImage.id);
+        const nextIndex = (currentIndex + 1) % filteredImages.length;
+        setSelectedImage(filteredImages[nextIndex]);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [selectedImage, galleryFilter]);
+
+  // Lightbox navigation controls
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!selectedImage) return;
+    const filteredImages = galleryImages.filter(
+      img => galleryFilter === "all" || img.category === galleryFilter
+    );
+    const currentIndex = filteredImages.findIndex(img => img.id === selectedImage.id);
+    const prevIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
+    setSelectedImage(filteredImages[prevIndex]);
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!selectedImage) return;
+    const filteredImages = galleryImages.filter(
+      img => galleryFilter === "all" || img.category === galleryFilter
+    );
+    const currentIndex = filteredImages.findIndex(img => img.id === selectedImage.id);
+    const nextIndex = (currentIndex + 1) % filteredImages.length;
+    setSelectedImage(filteredImages[nextIndex]);
+  };
 
   return (
     <main className="overflow-x-hidden pt-20">
@@ -322,6 +477,231 @@ export default function TreeVolution() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* NEW: BENTO-GRID MEDIA GALLERY */}
+      <section className="py-24 md:py-32 bg-white relative border-t border-emerald-50">
+        <div className="absolute bottom-1/4 -right-36 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="container mx-auto px-4 lg:px-8 max-w-6xl relative z-10">
+          
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <p className="text-xs font-sans-body font-bold tracking-[0.25em] uppercase text-accent mb-4">
+              Visual Documentation
+            </p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-foreground">
+              Tree-volution Campaign Gallery
+            </h2>
+            <p className="text-muted-foreground mt-4 font-sans-body font-light">
+              Explore dynamic photos from the ground. Use category filters to view different facets of the environmental movement.
+            </p>
+          </div>
+
+          {/* Gallery Category Filter Buttons */}
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
+            {[
+              { id: "all", label: "All Campaign Photos", icon: Filter },
+              { id: "planting", label: "On-Ground Planting", icon: Sprout },
+              { id: "volunteers", label: "Volunteers in Action", icon: Users },
+              { id: "community", label: "Community Support", icon: Heart },
+              { id: "mapping", label: "GPS Mapping & Audits", icon: MapPin }
+            ].map((filter) => {
+              const isActive = galleryFilter === filter.id;
+              const Icon = filter.icon;
+              return (
+                <button
+                  key={filter.id}
+                  onClick={() => setGalleryFilter(filter.id)}
+                  className={`py-3 px-6 rounded-full text-sm font-sans-body font-semibold tracking-wide flex items-center gap-2 border transition-all duration-300 ${
+                    isActive
+                      ? "bg-emerald-700 border-emerald-700 text-white shadow-lg shadow-emerald-750/15"
+                      : "bg-white border-emerald-100 hover:border-emerald-700 text-muted-foreground hover:text-emerald-800"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {filter.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Bento-Grid Layout with Premium Scaling and Shifting Tilt */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 auto-rows-[220px] grid-flow-row-dense">
+            {galleryImages
+              .filter(img => galleryFilter === "all" || img.category === galleryFilter)
+              .map((img) => (
+                <div
+                  key={img.id}
+                  onClick={() => setSelectedImage(img)}
+                  className={`group relative overflow-hidden rounded-[2.5rem] border border-emerald-500/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.12)] cursor-pointer transition-all duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:scale-[1.02] ${img.spanClass}`}
+                >
+                  <img
+                    src={img.url}
+                    alt={img.title}
+                    className={`w-full h-full object-cover transition-transform duration-1000 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06] ${img.objectPosition || "object-center"}`}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/95 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                  
+                  {/* Floating Action/Info Trigger on Hover */}
+                  <div className="absolute bottom-7 left-7 right-7 text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 space-y-2.5 z-10">
+                    <div className="flex flex-wrap gap-2 items-center">
+                      <span className="px-2.5 py-0.5 rounded-full bg-accent/90 text-accent-foreground text-[9px] font-bold uppercase tracking-widest">
+                        {img.category}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-[9px] text-accent font-mono bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-md border border-white/5">
+                        <MapPin className="w-3 h-3 text-accent" /> {img.coords.split(",")[0]}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-serif font-bold leading-tight">{img.title}</h3>
+                    <p className="text-xs text-white/70 font-sans-body line-clamp-1">{img.desc}</p>
+                    <div className="flex justify-between items-center pt-2.5 text-[10px] text-white/40 border-t border-white/10">
+                      <span>Zone: {img.location}</span>
+                      <Maximize2 className="w-3.5 h-3.5 text-accent" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+            {/* Dynamic Custom Bento Quote Tile */}
+            {galleryFilter === "all" && (
+              <div className="md:col-span-2 md:row-span-1 rounded-[2.5rem] bg-emerald-900 border border-emerald-800 p-8 flex flex-col justify-between text-white relative overflow-hidden group shadow-md hover:-translate-y-1 transition-all duration-300">
+                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
+                <div className="space-y-4 relative z-10">
+                  <span className="inline-flex py-1 px-3 rounded-full bg-accent/20 border border-accent/30 text-accent text-[10px] font-bold uppercase tracking-wider font-sans-body">
+                    Campaign Mantra
+                  </span>
+                  <p className="text-xl md:text-2xl font-serif font-medium leading-relaxed italic">
+                    "Sowing a seed today, restoring a green canopy tomorrow, nurturing a sustainable future for generations."
+                  </p>
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-emerald-800 text-xs text-emerald-200 relative z-10">
+                  <span>Tree-volution Flagship Core</span>
+                  <Sprout className="w-5 h-5 text-accent" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Interactive Fullscreen Gallery Lightbox Modal with Carousel Nav */}
+          <AnimatePresence>
+            {selectedImage && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-4 md:p-8"
+              >
+                {/* Left Chevron Control */}
+                <button
+                  onClick={handlePrev}
+                  className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-30 w-16 h-16 rounded-full bg-[#030712]/60 hover:bg-emerald-800 text-white items-center justify-center border border-white/10 hover:border-accent/40 backdrop-blur-md transition-all duration-300 hover:scale-105"
+                >
+                  <ChevronLeft className="w-8 h-8 text-white" />
+                </button>
+
+                {/* Right Chevron Control */}
+                <button
+                  onClick={handleNext}
+                  className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-30 w-16 h-16 rounded-full bg-[#030712]/60 hover:bg-emerald-800 text-white items-center justify-center border border-white/10 hover:border-accent/40 backdrop-blur-md transition-all duration-300 hover:scale-105"
+                >
+                  <ChevronRight className="w-8 h-8 text-white" />
+                </button>
+
+                <div className="relative w-full max-w-5xl bg-[#030712] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl z-10">
+                  
+                  {/* Close button */}
+                  <button
+                    onClick={() => setSelectedImage(null)}
+                    className="absolute top-6 right-6 z-25 w-12 h-12 rounded-full bg-black/40 hover:bg-white/10 text-white flex items-center justify-center border border-white/10 hover:border-white/30 transition-all duration-300"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-0 h-full max-h-[85vh] md:max-h-[75vh]">
+                    
+                    {/* Lightbox Left: Image Panel */}
+                    <div className="md:col-span-7 bg-black flex flex-col justify-center relative overflow-hidden h-64 md:h-full">
+                      <img
+                        src={selectedImage.url}
+                        alt={selectedImage.title}
+                        className="w-full h-full object-contain max-h-[85vh]"
+                      />
+                      
+                      {/* Active floating Tag */}
+                      <span className="absolute bottom-6 left-6 py-1.5 px-4 rounded-md bg-emerald-800 text-accent font-sans-body font-bold text-xs shadow-md border border-emerald-700">
+                        ₹99 Contribution Spot
+                      </span>
+
+                      {/* Mobile On-Image Chevrons Navigation */}
+                      <div className="flex md:hidden absolute inset-x-0 top-1/2 -translate-y-1/2 justify-between px-4 z-20 pointer-events-none">
+                        <button onClick={handlePrev} className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-white">
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <button onClick={handleNext} className="pointer-events-auto w-10 h-10 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-white">
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Lightbox Right: Image Description Panel */}
+                    <div className="md:col-span-5 p-8 md:p-12 text-white flex flex-col justify-between gap-8 overflow-y-auto">
+                      
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <span className="inline-block py-1 px-3 rounded bg-emerald-950 border border-emerald-800 text-emerald-400 text-[10px] font-bold uppercase tracking-widest font-sans-body">
+                            {selectedImage.category}
+                          </span>
+                          <h3 className="text-3xl font-serif font-bold text-white leading-tight">
+                            {selectedImage.title}
+                          </h3>
+                        </div>
+
+                        <p className="text-white/70 font-sans-body text-base font-light leading-relaxed">
+                          {selectedImage.desc}
+                        </p>
+
+                        <div className="space-y-4 pt-4 border-t border-white/5">
+                          <div className="flex items-start gap-3">
+                            <MapPin className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest font-sans-body">Plantation Location</p>
+                              <p className="text-sm font-sans-body text-white/80 font-semibold">{selectedImage.location}</p>
+                              <p className="text-xs font-sans-body text-white/50">{selectedImage.coords}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-3">
+                            <Calendar className="w-5 h-5 text-accent shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest font-sans-body">Photographed On</p>
+                              <p className="text-sm font-sans-body text-white/80 font-semibold">{selectedImage.date}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Redirect CTA Action inside Lightbox */}
+                      <div className="pt-6 border-t border-white/5 flex gap-4">
+                        <a
+                          href="https://www.inspireindiatalks.com/tree-volution"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full"
+                        >
+                          <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 font-sans-body font-bold text-base py-6 rounded-2xl shadow-xl shadow-accent/5">
+                            Support this Zone (₹99)
+                          </Button>
+                        </a>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 
