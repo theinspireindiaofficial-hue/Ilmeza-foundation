@@ -76,11 +76,6 @@ const Index = () => {
             </div>
 
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 fill-mode-both">
-              <div className="mt-6 mb-2 inline-block py-2 px-6 rounded-full bg-accent/20 border border-accent/30 backdrop-blur-md shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:scale-105 transition-transform duration-300">
-                 <p className="text-lg md:text-xl font-bold text-accent drop-shadow-md animate-pulse">
-                    🚨 Last date to apply for Next 100: 20th May 2026 🚨
-                 </p>
-              </div>
               <div className="mt-8 flex flex-col sm:flex-row gap-6 justify-center">
                 <Link to="/next-100">
                   <Button className="bg-accent text-accent-foreground hover:bg-accent/90 font-sans-body text-lg font-bold px-10 py-8 rounded-full shadow-2xl shadow-accent/20 transition-all duration-300 hover:scale-105">
