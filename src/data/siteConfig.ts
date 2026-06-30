@@ -9,8 +9,10 @@ export const siteConfig = {
         email: "ilmezaofficial@gmail.com",
         tagline: "Building Hope. Creating Futures.",
         socials: {
-            instagram: "https://www.instagram.com/ilmezaofficial?igsh=MWV0ZGtkYXBjdzlpag==",
+            instagram: "https://www.instagram.com/ilmezaa?igsh=MWV0ZGtkYXBjdzlpag==",
             linkedin: "#", // Add LinkedIn URL if available
+            youtube: "https://youtube.com/@ilmezaofficial?si=hSZMaL4vRJq3vY-q",
+            facebook: "https://www.facebook.com/share/1EHMnwhUEr/",
         },
         donate: {
             qrPath: "/images/qr_donate.png",

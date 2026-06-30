@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Phone, MapPin, Heart, ArrowRight, Instagram, Linkedin, Twitter, Globe, Sparkles } from "lucide-react";
+import { Mail, Phone, MapPin, Heart, ArrowRight, Instagram, Linkedin, Twitter, Youtube, Facebook, Globe, Sparkles } from "lucide-react";
 import { siteConfig } from "@/data/siteConfig";
 import { motion } from "framer-motion";
 
@@ -143,6 +143,8 @@ const Footer = () => {
                 { icon: Instagram, href: siteConfig.brand.socials.instagram },
                 { icon: Linkedin, href: siteConfig.brand.socials.linkedin },
                 { icon: Twitter, href: "#" },
+                { icon: Youtube, href: siteConfig.brand.socials.youtube },
+                { icon: Facebook, href: siteConfig.brand.socials.facebook },
               ].map((social, i) => (
                 <a
                   key={i}
